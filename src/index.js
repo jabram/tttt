@@ -57,6 +57,7 @@ class Game extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      descOrder: false,
       history: [{
         squares: Array(9).fill(null),
         updatedSquare: null
@@ -64,6 +65,12 @@ class Game extends React.Component {
       stepNumber: 0,
       xIsNext: true
     };
+  }
+
+  toggleSort() {
+    this.setState({
+      descOrder: !this.state.descOrder
+    })
   }
 
   handleClick(i) {
@@ -92,14 +99,19 @@ class Game extends React.Component {
   }
 
   render() {
-    const history = this.state.history;
+    const history = this.state.history.slice();
     const current = history[this.state.stepNumber];
     const winner = calculateWinner(current.squares);
 
+    if (this.state.descOrder === true) {
+      history.reverse();
+    }
+
     // step = this iteration of the history array
     // move = current index of .map()
-    const moves = history.map((step, move) => {
-      const position = calculateSquarePosition(history[move].updatedSquare);
+    const moves = history.map((step, iteration) => {
+      const move = this.state.descOrder === true ? history.length - 1 - iteration : iteration;
+      const position = calculateSquarePosition(history[iteration].updatedSquare);
       const desc = move ?
         'Go to move #' + move + ' (col ' + position.col + ', row ' + position.row + ')' :
         'Go to game start';
@@ -134,6 +146,10 @@ class Game extends React.Component {
         </div>
         <div className="game-info">
           <div>{status}</div>
+          <div>
+            sort: {this.state.descOrder === true ? 'desc ' : 'asc '}
+            <button onClick={() => this.toggleSort()}>change</button>
+          </div>
           <ol>{moves}</ol>
         </div>
       </div>
